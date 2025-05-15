@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../assets/reducers/productSlice'
 import { useEffect } from 'react'
@@ -8,16 +8,36 @@ function Home() {
   const dispatch = useDispatch()
   const productsState = useSelector((state) => state.products) || { products: [], isLoading: false, error: null }
   const cart = useSelector((state) => state.cart)
+  const [activeFilter, setActiveFilter] = useState('all')
 
   useEffect(() => {
     dispatch(fetchProducts())
   }, [dispatch])
 
-
   const handleAddToCart = (product) => {
     dispatch(addItem(product))
-    console.log('Product added:', product)
   }
+
+  const filterProducts = (products) => {
+    if (!products) return []
+    
+    switch (activeFilter) {
+      case 'price':
+        return products.filter(product => product.price < 100)
+      case "men's clothing":
+        return products.filter(product => product.category === "men's clothing")
+      case "women's clothing":
+        return products.filter(product => product.category === "women's clothing")
+      case 'jewelery':
+        return products.filter(product => product.category === 'jewelery')
+      case 'electronics':
+        return products.filter(product => product.category === 'electronics')
+      default:
+        return products
+    }
+  }
+
+  const filteredProducts = filterProducts(productsState.products)
 
   if (productsState.isLoading) {
     return (
@@ -42,7 +62,7 @@ function Home() {
     )
   }
 
-  if (!productsState.products || productsState.products.length === 0) {
+  if (!filteredProducts || filteredProducts.length === 0) {
     return (
       <div className="min-h-screen bg-zinc-200 flex items-center justify-center">
         <div className="text-center">
@@ -56,24 +76,59 @@ function Home() {
     <div className="min-h-screen pt-10 bg-zinc-200 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap justify-center gap-4 mb-8">
-          <button className="bg-white text-indigo-600 border-2 border-indigo-600 px-6 py-2 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 font-medium shadow-sm hover:shadow-md">
+          <button 
+            onClick={() => setActiveFilter('price')}
+            className={`border-2 px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md ${
+              activeFilter === 'price' 
+                ? 'bg-indigo-600 text-white border-indigo-600' 
+                : 'bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white'
+            }`}
+          >
             Price &lt; $100
           </button>
-          <button className="bg-white text-indigo-600 border-2 border-indigo-600 px-6 py-2 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 font-medium shadow-sm hover:shadow-md">
+          <button 
+            onClick={() => setActiveFilter("men's clothing")}
+            className={`border-2 px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md ${
+              activeFilter === "men's clothing" 
+                ? 'bg-indigo-600 text-white border-indigo-600' 
+                : 'bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white'
+            }`}
+          >
             Men&apos;s Clothing
           </button>
-          <button className="bg-white text-indigo-600 border-2 border-indigo-600 px-6 py-2 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 font-medium shadow-sm hover:shadow-md">
+          <button 
+            onClick={() => setActiveFilter("women's clothing")}
+            className={`border-2 px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md ${
+              activeFilter === "women's clothing" 
+                ? 'bg-indigo-600 text-white border-indigo-600' 
+                : 'bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white'
+            }`}
+          >
             Women&apos;s Clothing
           </button>
-          <button className="bg-white text-indigo-600 border-2 border-indigo-600 px-6 py-2 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 font-medium shadow-sm hover:shadow-md">
+          <button 
+            onClick={() => setActiveFilter('jewelery')}
+            className={`border-2 px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md ${
+              activeFilter === 'jewelery' 
+                ? 'bg-indigo-600 text-white border-indigo-600' 
+                : 'bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white'
+            }`}
+          >
             Jewelry
           </button>
-          <button className="bg-white text-indigo-600 border-2 border-indigo-600 px-6 py-2 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300 font-medium shadow-sm hover:shadow-md">
+          <button 
+            onClick={() => setActiveFilter('electronics')}
+            className={`border-2 px-6 py-2 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md ${
+              activeFilter === 'electronics' 
+                ? 'bg-indigo-600 text-white border-indigo-600' 
+                : 'bg-white text-indigo-600 border-indigo-600 hover:bg-indigo-600 hover:text-white'
+            }`}
+          >
             Electronics
           </button>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {productsState.products.map((product) => (
+          {filteredProducts.map((product) => (
             <div 
               key={product.id} 
               className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
