@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts } from '../assets/reducers/productSlice'
 import { useEffect } from 'react'
 import { addItem } from '../assets/reducers/cartSlice'
+import { useNavigate } from 'react-router-dom'
 
 function Home() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const productsState = useSelector((state) => state.products) || { products: [], isLoading: false, error: null }
   const cart = useSelector((state) => state.cart)
   const [activeFilter, setActiveFilter] = useState('all')
@@ -16,6 +18,10 @@ function Home() {
 
   const handleAddToCart = (product) => {
     dispatch(addItem(product))
+  }
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`)
   }
 
   const filterProducts = (products) => {
@@ -133,7 +139,10 @@ function Home() {
               key={product.id} 
               className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden"
             >
-              <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden">
+              <div 
+                className="aspect-w-1 aspect-h-1 w-full overflow-hidden cursor-pointer"
+                onClick={() => handleProductClick(product.id)}
+              >
                 <img 
                   src={product.image} 
                   alt={product.title} 
@@ -141,7 +150,10 @@ function Home() {
                 />
               </div>
               <div className="p-4">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+                <h2 
+                  className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 cursor-pointer hover:text-indigo-600"
+                  onClick={() => handleProductClick(product.id)}
+                >
                   {product.title}
                 </h2>
                 <div className="flex items-center justify-between">
