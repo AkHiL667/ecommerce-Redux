@@ -13,21 +13,6 @@ const persistConfig = {
   key: 'root',
   storage,
   whitelist: ['cart'],
-  stateReconciler: (inboundState, originalState) => {
-    // Ensure cart state is properly initialized
-    if (inboundState.cart) {
-      return {
-        ...inboundState,
-        cart: {
-          ...inboundState.cart,
-          cart: inboundState.cart.cart || [],
-          totalQuantity: inboundState.cart.totalQuantity || 0,
-          totalAmount: inboundState.cart.totalAmount || 0,
-        }
-      };
-    }
-    return inboundState;
-  }
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -37,7 +22,14 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE', 'persist/REGISTER'],
+        ignoredActions: [
+          'persist/PERSIST',
+          'persist/REHYDRATE',
+          'persist/REGISTER',
+          'persist/FLUSH',
+          'persist/PAUSE',
+          'persist/PURGE',
+        ],
       },
     }),
 });
